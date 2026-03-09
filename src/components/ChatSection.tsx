@@ -194,7 +194,7 @@ const ChatSection = () => {
       </div>
 
       {/* Input */}
-      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[358px] z-40">
+      <div className="mt-3 w-full">
         <div className="flex items-center gap-2 bg-secondary border border-border rounded-2xl px-4 py-2">
           <input
             type="text"

@@ -8,7 +8,9 @@ const Index = () => {
       <div className="w-full max-w-[390px] relative">
         <BioHeader />
         <ChatSection />
-        <WhatsAppButton />
+        <div className="px-4 pb-6">
+          <WhatsAppButton />
+        </div>
       </div>
     </div>
   );

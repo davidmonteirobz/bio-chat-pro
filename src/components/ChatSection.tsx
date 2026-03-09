@@ -149,7 +149,7 @@ const ChatSection = () => {
   };
 
   return (
-    <section className="flex flex-col px-4 pb-28">
+    <section className="flex flex-col px-4 pb-6">
       {/* Label */}
       <motion.div
         initial={{ opacity: 0 }}

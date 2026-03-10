@@ -52,80 +52,47 @@ const ChatSection = () => {
   const getAIResponse = useCallback(async (userMessage: string, allMessages: Message[]) => {
     setIsTyping(true);
 
-    // Build messages for AI
+    // Build conversation history for the AI (no system prompt - handled by edge function)
     const aiMessages = [
-      { role: "system" as const, content: SYSTEM_PROMPT },
       ...allMessages.map((m) => ({
-        role: (m.role === "agent" ? "assistant" : "user") as "system" | "user" | "assistant",
+        role: (m.role === "agent" ? "assistant" : "user") as "user" | "assistant",
         content: m.content,
       })),
       { role: "user" as const, content: userMessage },
     ];
 
     try {
-      // Try edge function first
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      if (supabaseUrl) {
-        const resp = await fetch(`${supabaseUrl}/functions/v1/chat-agent`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({ messages: aiMessages, leadName, userMessage }),
-        });
+      const resp = await fetch(`${supabaseUrl}/functions/v1/chat-agent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ messages: aiMessages }),
+      });
 
-        if (resp.ok) {
-          const data = await resp.json();
-          setIsTyping(false);
-
-          if (data.leadName) setLeadName(data.leadName);
-
-          const agentMsg: Message = { role: "agent", content: data.reply };
-          setMessages((prev) => [...prev, agentMsg]);
-
-          // Check if we should show WhatsApp
-          if (data.reply.toLowerCase().includes("whatsapp") || data.showWhatsApp) {
-            setShowWhatsApp(true);
-            setWhatsAppMsg(
-              `Oi! Sou ${data.leadName || "lead"} e vim pelo site. Tenho interesse em: ${userMessage}`
-            );
-          }
-          return;
-        }
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.error || "Request failed");
       }
 
-      // Fallback: simple local responses
-      await new Promise((r) => setTimeout(r, 1500));
+      const data = await resp.json();
       setIsTyping(false);
 
-      let reply = "Me conta mais sobre o que você precisa! 😊";
-      const lower = userMessage.toLowerCase();
+      if (data.leadName) setLeadName(data.leadName);
 
-      if (lower.includes("site") || lower.includes("quero")) {
-        reply = "Que legal! 🚀 A gente cria sites incríveis com entrega em até 5 dias. Pra eu te ajudar melhor, qual é o seu nome?";
-      } else if (lower.includes("custa") || lower.includes("preço") || lower.includes("valor")) {
-        reply = "Nossos sites começam a partir de R$1.500 e vão até R$3.500, dependendo da complexidade. Entrega em até 5 dias! 💪 Qual seu nome pra eu te passar mais detalhes?";
-      } else if (lower.includes("portfólio") || lower.includes("portfolio") || lower.includes("ver")) {
-        reply = "Temos cases incríveis! ✨ No WhatsApp consigo te mandar exemplos personalizados pro seu nicho. Me diz seu nome que te encaminho!";
-      } else if (lower.includes("falar") || lower.includes("whatsapp")) {
-        reply = "Bora! 📲 Me diz seu nome que já te encaminho pro nosso WhatsApp com atendimento personalizado!";
+      const agentMsg: Message = { role: "agent", content: data.reply };
+      setMessages((prev) => [...prev, agentMsg]);
+
+      if (data.reply.toLowerCase().includes("whatsapp") || data.showWhatsApp) {
         setShowWhatsApp(true);
+        setWhatsAppMsg(
+          `Oi! Sou ${data.leadName || leadName || "lead"} e vim pelo site. Tenho interesse em: ${userMessage}`
+        );
       }
-
-      // Simple name detection
-      if (messages.some((m) => m.content.includes("nome"))) {
-        const words = userMessage.trim().split(" ");
-        if (words.length <= 3 && words[0].length > 1) {
-          setLeadName(words[0]);
-          reply = `Prazer, ${words[0]}! 😄 Vou te encaminhar pro nosso WhatsApp pra gente conversar melhor sobre o seu projeto. Clica no botão abaixo! 👇`;
-          setShowWhatsApp(true);
-          setWhatsAppMsg(`Oi! Sou ${words[0]} e vim pelo site. Tenho interesse em criação de site.`);
-        }
-      }
-
-      setMessages((prev) => [...prev, { role: "agent", content: reply }]);
-    } catch {
+    } catch (err) {
+      console.error("Chat error:", err);
       setIsTyping(false);
       setMessages((prev) => [
         ...prev,
@@ -133,7 +100,7 @@ const ChatSection = () => {
       ]);
       setShowWhatsApp(true);
     }
-  }, [leadName, messages]);
+  }, [leadName]);
 
   const handleSend = async (text: string) => {
     if (!text.trim()) return;

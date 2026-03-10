@@ -128,6 +128,13 @@ serve(async (req) => {
       reply = reply.replace(/\[SHOW_WHATSAPP\]/g, "").trim();
     }
 
+    let waMsg = null;
+    const waMsgMatch = reply.match(/\[WA_MSG:([^\]]+)\]/);
+    if (waMsgMatch) {
+      waMsg = waMsgMatch[1].trim();
+      reply = reply.replace(/\[WA_MSG:[^\]]+\]/g, "").trim();
+    }
+
     return new Response(
       JSON.stringify({ reply, leadName, showWhatsApp }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }

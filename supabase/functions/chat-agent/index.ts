@@ -119,10 +119,10 @@ serve(async (req) => {
     let leadName = null;
     let showWhatsApp = false;
 
-    const nameMatch = reply.match(/\[LEAD_NAME:([^\]]+)\]/);
+    const nameMatch = reply.match(/\[LEAD_NAME:([^\]]*)\]/);
     if (nameMatch) {
-      leadName = nameMatch[1].trim();
-      reply = reply.replace(/\[LEAD_NAME:[^\]]+\]/g, "").trim();
+      leadName = nameMatch[1].trim() || null;
+      reply = reply.replace(/\[LEAD_NAME:[^\]]*\]/g, "").trim();
     }
 
     if (reply.includes("[SHOW_WHATSAPP]")) {

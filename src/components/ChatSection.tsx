@@ -15,7 +15,7 @@ const INITIAL_MESSAGE = "Oi! Vi que você veio pelo Instagram 👋. Meu nome é 
 
 const QUICK_REPLIES = ["🌐 Quero um site", "💰 Quanto custa?", "✦ Ver portfólio", "📲 Falar agora"];
 
-const WHATSAPP_NUMBER = "5500000000000";
+const WHATSAPP_NUMBER = "5583999804072";
 
 // System prompt is now handled by the edge function
 

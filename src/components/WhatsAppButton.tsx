@@ -5,7 +5,7 @@ interface WhatsAppButtonProps {
   message?: string;
 }
 
-const WHATSAPP_NUMBER = "5500000000000"; // Replace with real number
+const WHATSAPP_NUMBER = "5583999804072";
 
 const WhatsAppButton = ({ message }: WhatsAppButtonProps) => {
   const defaultMsg = "Oi! Vim pelo site e quero saber mais sobre criação de sites 🚀";

@@ -136,7 +136,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ reply, leadName, showWhatsApp }),
+      JSON.stringify({ reply, leadName, showWhatsApp, waMsg }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {

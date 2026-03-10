@@ -78,7 +78,7 @@ const ChatSection = () => {
       if (data.reply.toLowerCase().includes("whatsapp") || data.showWhatsApp) {
         setShowWhatsApp(true);
         setWhatsAppMsg(
-          `Oi! Sou ${data.leadName || leadName || "lead"} e vim pelo site. Tenho interesse em: ${userMessage}`
+          data.waMsg || `Oi David! Vim pelo link da bio 👋 Sou ${data.leadName || leadName || "lead"} e tenho interesse em saber mais.`
         );
       }
     } catch (err) {

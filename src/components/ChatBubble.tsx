@@ -26,6 +26,16 @@ const ChatBubble = ({ role, content }: ChatBubbleProps) => {
         <ReactMarkdown
           components={{
             p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+            a: ({ href, children }) => (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-primary hover:text-primary/80 transition-colors"
+              >
+                {children}
+              </a>
+            ),
           }}
         >
           {content}

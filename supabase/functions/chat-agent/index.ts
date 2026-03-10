@@ -131,10 +131,10 @@ serve(async (req) => {
     }
 
     let waMsg = null;
-    const waMsgMatch = reply.match(/\[WA_MSG:([^\]]+)\]/);
+    const waMsgMatch = reply.match(/\[WA_MSG:([^\]]*)\]/);
     if (waMsgMatch) {
-      waMsg = waMsgMatch[1].trim();
-      reply = reply.replace(/\[WA_MSG:[^\]]+\]/g, "").trim();
+      waMsg = waMsgMatch[1].trim() || null;
+      reply = reply.replace(/\[WA_MSG:[^\]]*\]/g, "").trim();
     }
 
     return new Response(

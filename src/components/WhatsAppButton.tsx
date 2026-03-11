@@ -20,7 +20,7 @@ const WhatsAppButton = ({ message }: WhatsAppButtonProps) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5, duration: 0.4 }}
-      className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-[#25D366] text-white font-display font-semibold text-base shadow-lg shadow-[#25D366]/30 hover:shadow-xl hover:shadow-[#25D366]/40 transition-all"
+      className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border-2 border-[#25D366] text-[#25D366] bg-transparent font-display font-semibold text-base hover:bg-[#25D366]/10 transition-all"
     >
       <MessageCircle className="w-5 h-5" />
       Continuar no WhatsApp

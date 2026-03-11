@@ -140,7 +140,7 @@ const ChatSection = () => {
               href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsAppMsg || "Oi! Vim pelo site e quero saber mais!")}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#25D366] text-white font-display font-semibold text-sm shadow-lg shadow-[#25D366]/30 hover:shadow-xl transition-all"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl border-2 border-[#25D366] text-[#25D366] bg-transparent font-display font-semibold text-sm hover:bg-[#25D366]/10 transition-all"
             >
               📲 Continuar no WhatsApp
             </a>

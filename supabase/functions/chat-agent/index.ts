@@ -148,6 +148,56 @@ serve(async (req) => {
       reply = reply.replace(/\[WA_MSG:[^\]]*\]/g, "").trim();
     }
 
+    // Extract additional lead info tags
+    let leadSegment = null;
+    const segmentMatch = reply.match(/\[LEAD_SEGMENT:([^\]]*)\]/);
+    if (segmentMatch) {
+      leadSegment = segmentMatch[1].trim() || null;
+      reply = reply.replace(/\[LEAD_SEGMENT:[^\]]*\]/g, "").trim();
+    }
+
+    let leadHasSite = null;
+    const hasSiteMatch = reply.match(/\[LEAD_HAS_SITE:([^\]]*)\]/);
+    if (hasSiteMatch) {
+      leadHasSite = hasSiteMatch[1].trim() || null;
+      reply = reply.replace(/\[LEAD_HAS_SITE:[^\]]*\]/g, "").trim();
+    }
+
+    let leadService = null;
+    const serviceMatch = reply.match(/\[LEAD_SERVICE:([^\]]*)\]/);
+    if (serviceMatch) {
+      leadService = serviceMatch[1].trim() || null;
+      reply = reply.replace(/\[LEAD_SERVICE:[^\]]*\]/g, "").trim();
+    }
+
+    let leadObjective = null;
+    const objectiveMatch = reply.match(/\[LEAD_OBJECTIVE:([^\]]*)\]/);
+    if (objectiveMatch) {
+      leadObjective = objectiveMatch[1].trim() || null;
+      reply = reply.replace(/\[LEAD_OBJECTIVE:[^\]]*\]/g, "").trim();
+    }
+
+    // Save lead to database when qualified (SHOW_WHATSAPP triggered)
+    if (showWhatsApp && leadName) {
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+        await supabase.from("leads").insert({
+          name: leadName,
+          segment: leadSegment,
+          has_site: leadHasSite,
+          service_interest: leadService,
+          objective: leadObjective,
+          wa_msg: waMsg,
+        });
+        console.log("Lead saved:", leadName);
+      } catch (dbErr) {
+        console.error("Failed to save lead:", dbErr);
+      }
+    }
+
     return new Response(
       JSON.stringify({ reply, leadName, showWhatsApp, waMsg }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }

@@ -152,14 +152,15 @@ const ChatSection = () => {
 
       {/* Input */}
       <div className="mt-3 w-full">
-        <div className="flex items-center gap-2 bg-secondary border border-border rounded-2xl px-4 py-2">
+        <div className="flex items-center gap-2 bg-white border border-border rounded-2xl px-4 py-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend(input)}
+            onFocus={() => setTimeout(scrollToBottom, 300)}
             placeholder="Digite sua mensagem..."
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none font-body"
+            className="flex-1 bg-transparent text-[16px] text-black placeholder:text-black/40 outline-none font-body"
           />
           <button
             onClick={() => handleSend(input)}

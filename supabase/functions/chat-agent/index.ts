@@ -66,7 +66,13 @@ Limites: Só fale sobre sites, presença digital e serviços do estúdio. Se per
 
 IMPORTANTE: Quando você identificar o nome do lead na conversa, inclua no final da sua resposta a tag [LEAD_NAME:NomeDoLead] (isso será processado pelo sistema e NÃO será exibido ao usuário).
 IMPORTANTE: Quando for hora de encaminhar para o WhatsApp (após coletar todas as informações), inclua a tag [SHOW_WHATSAPP] no final da resposta.
-IMPORTANTE: Quando for encaminhar, inclua também a tag [WA_MSG:mensagem pré-preenchida aqui] para que o sistema monte o link correto.`;
+IMPORTANTE: Quando for encaminhar, inclua também a tag [WA_MSG:mensagem pré-preenchida aqui] para que o sistema monte o link correto.
+IMPORTANTE: Quando for encaminhar (junto com [SHOW_WHATSAPP]), inclua também estas tags com as informações coletadas:
+[LEAD_SEGMENT:segmento do negócio]
+[LEAD_HAS_SITE:sim ou não]
+[LEAD_SERVICE:serviço de interesse]
+[LEAD_OBJECTIVE:objetivo principal]`;
+
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {

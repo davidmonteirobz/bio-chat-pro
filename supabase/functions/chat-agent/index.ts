@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -66,7 +67,13 @@ Limites: Só fale sobre sites, presença digital e serviços do estúdio. Se per
 
 IMPORTANTE: Quando você identificar o nome do lead na conversa, inclua no final da sua resposta a tag [LEAD_NAME:NomeDoLead] (isso será processado pelo sistema e NÃO será exibido ao usuário).
 IMPORTANTE: Quando for hora de encaminhar para o WhatsApp (após coletar todas as informações), inclua a tag [SHOW_WHATSAPP] no final da resposta.
-IMPORTANTE: Quando for encaminhar, inclua também a tag [WA_MSG:mensagem pré-preenchida aqui] para que o sistema monte o link correto.`;
+IMPORTANTE: Quando for encaminhar, inclua também a tag [WA_MSG:mensagem pré-preenchida aqui] para que o sistema monte o link correto.
+IMPORTANTE: Quando for encaminhar (junto com [SHOW_WHATSAPP]), inclua também estas tags com as informações coletadas:
+[LEAD_SEGMENT:segmento do negócio]
+[LEAD_HAS_SITE:sim ou não]
+[LEAD_SERVICE:serviço de interesse]
+[LEAD_OBJECTIVE:objetivo principal]`;
+
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -139,6 +146,56 @@ serve(async (req) => {
     if (waMsgMatch) {
       waMsg = waMsgMatch[1].trim() || null;
       reply = reply.replace(/\[WA_MSG:[^\]]*\]/g, "").trim();
+    }
+
+    // Extract additional lead info tags
+    let leadSegment = null;
+    const segmentMatch = reply.match(/\[LEAD_SEGMENT:([^\]]*)\]/);
+    if (segmentMatch) {
+      leadSegment = segmentMatch[1].trim() || null;
+      reply = reply.replace(/\[LEAD_SEGMENT:[^\]]*\]/g, "").trim();
+    }
+
+    let leadHasSite = null;
+    const hasSiteMatch = reply.match(/\[LEAD_HAS_SITE:([^\]]*)\]/);
+    if (hasSiteMatch) {
+      leadHasSite = hasSiteMatch[1].trim() || null;
+      reply = reply.replace(/\[LEAD_HAS_SITE:[^\]]*\]/g, "").trim();
+    }
+
+    let leadService = null;
+    const serviceMatch = reply.match(/\[LEAD_SERVICE:([^\]]*)\]/);
+    if (serviceMatch) {
+      leadService = serviceMatch[1].trim() || null;
+      reply = reply.replace(/\[LEAD_SERVICE:[^\]]*\]/g, "").trim();
+    }
+
+    let leadObjective = null;
+    const objectiveMatch = reply.match(/\[LEAD_OBJECTIVE:([^\]]*)\]/);
+    if (objectiveMatch) {
+      leadObjective = objectiveMatch[1].trim() || null;
+      reply = reply.replace(/\[LEAD_OBJECTIVE:[^\]]*\]/g, "").trim();
+    }
+
+    // Save lead to database when qualified (SHOW_WHATSAPP triggered)
+    if (showWhatsApp && leadName) {
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+        await supabase.from("leads").insert({
+          name: leadName,
+          segment: leadSegment,
+          has_site: leadHasSite,
+          service_interest: leadService,
+          objective: leadObjective,
+          wa_msg: waMsg,
+        });
+        console.log("Lead saved:", leadName);
+      } catch (dbErr) {
+        console.error("Failed to save lead:", dbErr);
+      }
     }
 
     return new Response(

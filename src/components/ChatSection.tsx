@@ -11,7 +11,7 @@ interface Message {
   content: string;
 }
 
-const INITIAL_MESSAGE = "Oi! Vi que você veio pelo Instagram 👋. Meu nome é Iasmin, sou assistente aqui na Mirage Design Studio. Me conta, o que você tá precisando?";
+const INITIAL_MESSAGE = "Oi! Vi que você veio pelo Instagram 👋 Meu nome é Iasmin, sou assistente aqui na Mirage Design Studio. Antes de tudo, como posso te chamar?";
 
 const QUICK_REPLIES = ["🌐 Quero um site", "💰 Quanto custa?"];
 

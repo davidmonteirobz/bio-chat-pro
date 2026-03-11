@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import avatarImg from "@/assets/avatar.png";
 
-const tags = ["Web Design", "Landing Pages", "Sites Profissionais", "UI/UX"];
+const tags = ["Web Design", "Landing Pages", "Sites Profissionais"];
 
 const BioHeader = () => {
   return (

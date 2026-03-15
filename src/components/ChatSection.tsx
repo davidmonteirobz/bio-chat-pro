@@ -13,7 +13,7 @@ interface Message {
 
 const INITIAL_MESSAGE = "Oi! Vi que você veio pelo Instagram 👋. Meu nome é Iasmin, sou assistente aqui na Mirage Design Studio. Me fala seu nome?";
 
-const QUICK_REPLIES = ["🌐 Quero um site", "💰 Quanto custa?"];
+
 
 const WHATSAPP_NUMBER = "5583999804072";
 

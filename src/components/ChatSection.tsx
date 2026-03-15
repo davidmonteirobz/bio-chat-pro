@@ -122,9 +122,6 @@ const ChatSection = () => {
           <ChatBubble key={i} role={msg.role} content={msg.content} />
         ))}
         {isTyping && <TypingIndicator />}
-        {showQuickReplies && !isTyping && (
-          <QuickReplies options={QUICK_REPLIES} onSelect={handleQuickReply} />
-        )}
 
         {showWhatsApp && (
           <motion.div

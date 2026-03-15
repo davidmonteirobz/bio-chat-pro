@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Send } from "lucide-react";
 import { motion } from "framer-motion";
 import ChatBubble from "./ChatBubble";
-import QuickReplies from "./QuickReplies";
 import TypingIndicator from "./TypingIndicator";
 import WhatsAppButton from "./WhatsAppButton";
 
@@ -13,7 +12,7 @@ interface Message {
 
 const INITIAL_MESSAGE = "Oi! Vi que você veio pelo Instagram 👋. Meu nome é Iasmin, sou assistente aqui na Mirage Design Studio. Me fala seu nome?";
 
-const QUICK_REPLIES = ["🌐 Quero um site", "💰 Quanto custa?"];
+
 
 const WHATSAPP_NUMBER = "5583999804072";
 
@@ -25,7 +24,7 @@ const ChatSection = () => {
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [showQuickReplies, setShowQuickReplies] = useState(true);
+  
   const [whatsAppMsg, setWhatsAppMsg] = useState("");
   const [showWhatsApp, setShowWhatsApp] = useState(false);
   const [leadName, setLeadName] = useState("");
@@ -97,13 +96,10 @@ const ChatSection = () => {
     const userMsg: Message = { role: "user", content: text.trim() };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
-    setShowQuickReplies(false);
+    
     await getAIResponse(text.trim(), messages);
   };
 
-  const handleQuickReply = (option: string) => {
-    handleSend(option);
-  };
 
   return (
     <section className="flex flex-col px-4 pb-6">
@@ -126,9 +122,6 @@ const ChatSection = () => {
           <ChatBubble key={i} role={msg.role} content={msg.content} />
         ))}
         {isTyping && <TypingIndicator />}
-        {showQuickReplies && !isTyping && (
-          <QuickReplies options={QUICK_REPLIES} onSelect={handleQuickReply} />
-        )}
 
         {showWhatsApp && (
           <motion.div

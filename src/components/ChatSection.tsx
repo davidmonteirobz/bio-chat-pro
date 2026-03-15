@@ -100,9 +100,6 @@ const ChatSection = () => {
     await getAIResponse(text.trim(), messages);
   };
 
-  const handleQuickReply = (option: string) => {
-    handleSend(option);
-  };
 
   return (
     <section className="flex flex-col px-4 pb-6">

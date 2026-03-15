@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Send } from "lucide-react";
 import { motion } from "framer-motion";
 import ChatBubble from "./ChatBubble";
-import QuickReplies from "./QuickReplies";
 import TypingIndicator from "./TypingIndicator";
 import WhatsAppButton from "./WhatsAppButton";
 

@@ -24,7 +24,7 @@ const ChatSection = () => {
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [showQuickReplies, setShowQuickReplies] = useState(true);
+  
   const [whatsAppMsg, setWhatsAppMsg] = useState("");
   const [showWhatsApp, setShowWhatsApp] = useState(false);
   const [leadName, setLeadName] = useState("");

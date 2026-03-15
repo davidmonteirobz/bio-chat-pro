@@ -96,7 +96,7 @@ const ChatSection = () => {
     const userMsg: Message = { role: "user", content: text.trim() };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
-    setShowQuickReplies(false);
+    
     await getAIResponse(text.trim(), messages);
   };
 

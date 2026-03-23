@@ -11,27 +11,37 @@ const extractLeadJson = (rawReply: string) => {
   let reply = rawReply;
   let leadData: Record<string, unknown> | null = null;
 
-  const fencedMatch = reply.match(/```json_lead\s*([\s\S]*?)```/i);
+  // 1) Fenced ```json_lead ... ```
+  const fencedMatch = reply.match(/```(?:json_lead|json)\s*([\s\S]*?)```/i);
   if (fencedMatch) {
     try {
       leadData = JSON.parse(fencedMatch[1].trim());
     } catch (e) {
       console.error("Failed to parse fenced json_lead:", e);
     }
-    reply = reply.replace(/```json_lead\s*[\s\S]*?```/gi, "").trim();
+    reply = reply.replace(/```(?:json_lead|json)\s*[\s\S]*?```/gi, "").trim();
   }
 
+  // 2) Fallback: bare JSON object containing "nome" key anywhere in reply
   if (!leadData) {
-    const fallbackMatch = reply.match(/\{[\s\S]*?"foi_para_whatsapp"\s*:\s*(?:true|false)[\s\S]*?\}\s*$/);
+    const fallbackMatch = reply.match(/\{[^{}]*"nome"\s*:[^{}]*(?:"converteu"|"foi_para_whatsapp")[^{}]*\}/s);
     if (fallbackMatch) {
       try {
         leadData = JSON.parse(fallbackMatch[0].trim());
         reply = reply.slice(0, fallbackMatch.index).trim();
+        // Also remove anything after the JSON block
+        const afterJson = (fallbackMatch.index || 0) + fallbackMatch[0].length;
+        if (afterJson < rawReply.length) {
+          reply = reply.replace(fallbackMatch[0], "").trim();
+        }
       } catch (e) {
         console.error("Failed to parse fallback lead JSON:", e);
       }
     }
   }
+
+  // 3) Nuclear cleanup: remove any remaining JSON-like blocks with lead fields
+  reply = reply.replace(/\{[^{}]*"nome"\s*:[^{}]*"converteu"\s*:[^{}]*\}/gs, "").trim();
 
   return { reply, leadData };
 };

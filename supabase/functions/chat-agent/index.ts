@@ -68,11 +68,13 @@ REGRA IMPORTANTE: Se o lead pedir orçamento, preço ou valores logo de cara, FO
 
 ETAPA 4 — Entender o contexto (UMA pergunta por vez, só o que ainda não foi dito):
 - Tipo de negócio/segmento
-- Objetivo (vender, captar leads, portfólio, institucional...)
-- Referência ou ideia visual
+- Objetivo principal (vender, captar leads, apresentar serviços, institucional...)
+- Se já tem site ou está começando do zero
 - Prazo aproximado
 
 ETAPA 4 — Informar com transparência. Use os preços da tabela diretamente quando perguntarem ou quando o lead demonstrar interesse em valores.
+
+IMPORTANTE: Isso é uma PRÉ-QUALIFICAÇÃO, não um briefing. Não pergunte sobre referência visual, estilo, cores, páginas, estrutura detalhada ou qualquer pergunta de briefing antes do WhatsApp.
 
 ETAPA 5 — Quebra de objeções (veja abaixo).
 
@@ -103,6 +105,8 @@ ETAPA 6 — Encaminhar para WhatsApp OU encerrar com elegância (veja abaixo).
 
 Quando o lead estiver qualificado e interessado:
 "[Nome], acho que o próximo passo é você conversar com nosso time — eles montam uma proposta personalizada em poucos minutos. É só clicar no botão abaixo 👇"
+
+IMPORTANTE: Só encaminhe para o WhatsApp quando a conversa estiver realmente pronta para transferência. Se sua mensagem ainda contiver qualquer pergunta, NÃO encaminhe para o WhatsApp ainda e NÃO inclua [SHOW_WHATSAPP].
 
 ---
 
@@ -231,12 +235,19 @@ serve(async (req) => {
       reply = reply.replace(/```json_lead\s*[\s\S]*?```/g, "").trim();
     }
 
+    const isStillAskingQuestion = /\?($|\s)/m.test(reply);
+
     // If json_lead says converteu=true, show whatsapp
     if (leadData?.foi_para_whatsapp === true) {
       showWhatsApp = true;
     }
     if (leadData?.nome && !leadName) {
       leadName = leadData.nome as string;
+    }
+
+    // Never show WhatsApp while the agent is still asking a qualification question
+    if (isStillAskingQuestion) {
+      showWhatsApp = false;
     }
 
     // Build WhatsApp message from lead data

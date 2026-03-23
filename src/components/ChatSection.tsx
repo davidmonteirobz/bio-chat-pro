@@ -74,7 +74,7 @@ const ChatSection = () => {
       const agentMsg: Message = { role: "agent", content: data.reply };
       setMessages((prev) => [...prev, agentMsg]);
 
-      if (data.reply.toLowerCase().includes("whatsapp") || data.showWhatsApp) {
+      if (data.showWhatsApp) {
         setShowWhatsApp(true);
         setWhatsAppMsg(
           data.waMsg || `Oi David! Vim pelo link da bio 👋 Sou ${data.leadName || leadName || "lead"} e tenho interesse em saber mais.`

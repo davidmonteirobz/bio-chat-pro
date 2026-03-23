@@ -7,6 +7,35 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const extractLeadJson = (rawReply: string) => {
+  let reply = rawReply;
+  let leadData: Record<string, unknown> | null = null;
+
+  const fencedMatch = reply.match(/```json_lead\s*([\s\S]*?)```/i);
+  if (fencedMatch) {
+    try {
+      leadData = JSON.parse(fencedMatch[1].trim());
+    } catch (e) {
+      console.error("Failed to parse fenced json_lead:", e);
+    }
+    reply = reply.replace(/```json_lead\s*[\s\S]*?```/gi, "").trim();
+  }
+
+  if (!leadData) {
+    const fallbackMatch = reply.match(/\{[\s\S]*?"foi_para_whatsapp"\s*:\s*(?:true|false)[\s\S]*?\}\s*$/);
+    if (fallbackMatch) {
+      try {
+        leadData = JSON.parse(fallbackMatch[0].trim());
+        reply = reply.slice(0, fallbackMatch.index).trim();
+      } catch (e) {
+        console.error("Failed to parse fallback lead JSON:", e);
+      }
+    }
+  }
+
+  return { reply, leadData };
+};
+
 const SYSTEM_PROMPT = `Você é Iasmin, assistente virtual da Mirage Design Studio — uma agência especializada em criação de sites que convertem visitantes em clientes.
 
 Seu papel é conduzir uma conversa de pré-venda: entender o momento do lead, fornecer as informações certas, quebrar objeções, e ao final direcioná-lo para continuar no WhatsApp com um consultor humano.
@@ -223,17 +252,9 @@ serve(async (req) => {
       reply = reply.replace(/\[SHOW_WHATSAPP\]/g, "").trim();
     }
 
-    // Extract json_lead block
-    let leadData: Record<string, unknown> | null = null;
-    const jsonLeadMatch = reply.match(/```json_lead\s*([\s\S]*?)```/);
-    if (jsonLeadMatch) {
-      try {
-        leadData = JSON.parse(jsonLeadMatch[1].trim());
-      } catch (e) {
-        console.error("Failed to parse json_lead:", e);
-      }
-      reply = reply.replace(/```json_lead\s*[\s\S]*?```/g, "").trim();
-    }
+    const extractedLeadJson = extractLeadJson(reply);
+    reply = extractedLeadJson.reply;
+    const leadData = extractedLeadJson.leadData;
 
     const isStillAskingQuestion = /\?($|\s)/m.test(reply);
 

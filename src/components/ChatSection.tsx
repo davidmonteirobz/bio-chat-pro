@@ -3,7 +3,6 @@ import { Send } from "lucide-react";
 import { motion } from "framer-motion";
 import ChatBubble from "./ChatBubble";
 import TypingIndicator from "./TypingIndicator";
-import WhatsAppButton from "./WhatsAppButton";
 
 interface Message {
   role: "agent" | "user";

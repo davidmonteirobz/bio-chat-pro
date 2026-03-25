@@ -27,6 +27,7 @@ const ChatSection = () => {
   const [whatsAppMsg, setWhatsAppMsg] = useState("");
   const [showWhatsApp, setShowWhatsApp] = useState(false);
   const [leadName, setLeadName] = useState("");
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {

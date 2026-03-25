@@ -11,7 +11,6 @@ const extractLeadJson = (rawReply: string) => {
   let reply = rawReply;
   let leadData: Record<string, unknown> | null = null;
 
-  // 1) Fenced ```json_lead ... ```
   const fencedMatch = reply.match(/```(?:json_lead|json)\s*([\s\S]*?)```/i);
   if (fencedMatch) {
     try {
@@ -22,14 +21,12 @@ const extractLeadJson = (rawReply: string) => {
     reply = reply.replace(/```(?:json_lead|json)\s*[\s\S]*?```/gi, "").trim();
   }
 
-  // 2) Fallback: bare JSON object containing "nome" key anywhere in reply
   if (!leadData) {
     const fallbackMatch = reply.match(/\{[^{}]*"nome"\s*:[^{}]*(?:"converteu"|"foi_para_whatsapp")[^{}]*\}/s);
     if (fallbackMatch) {
       try {
         leadData = JSON.parse(fallbackMatch[0].trim());
         reply = reply.slice(0, fallbackMatch.index).trim();
-        // Also remove anything after the JSON block
         const afterJson = (fallbackMatch.index || 0) + fallbackMatch[0].length;
         if (afterJson < rawReply.length) {
           reply = reply.replace(fallbackMatch[0], "").trim();
@@ -40,7 +37,6 @@ const extractLeadJson = (rawReply: string) => {
     }
   }
 
-  // 3) Nuclear cleanup: remove any remaining JSON-like blocks with lead fields
   reply = reply.replace(/\{[^{}]*"nome"\s*:[^{}]*"converteu"\s*:[^{}]*\}/gs, "").trim();
 
   return { reply, leadData };
@@ -195,13 +191,19 @@ IMPORTANTE: Quando for encaminhar para WhatsApp, inclua [SHOW_WHATSAPP] no final
 - Dúvidas técnicas complexas → direcione ao consultor
 - Nunca seja insistente ou agressiva`;
 
+const getSupabaseClient = () => {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  return createClient(supabaseUrl, supabaseServiceKey);
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { messages } = await req.json();
+    const { messages, conversationId } = await req.json();
     const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
     if (!GROQ_API_KEY) {
       throw new Error("GROQ_API_KEY is not configured");
@@ -249,14 +251,12 @@ serve(async (req) => {
     let leadName = null;
     let showWhatsApp = false;
 
-    // Extract [LEAD_NAME:...]
     const nameMatch = reply.match(/\[LEAD_NAME:([^\]]*)\]/);
     if (nameMatch) {
       leadName = nameMatch[1].trim() || null;
       reply = reply.replace(/\[LEAD_NAME:[^\]]*\]/g, "").trim();
     }
 
-    // Extract [SHOW_WHATSAPP]
     if (reply.includes("[SHOW_WHATSAPP]")) {
       showWhatsApp = true;
       reply = reply.replace(/\[SHOW_WHATSAPP\]/g, "").trim();
@@ -268,7 +268,6 @@ serve(async (req) => {
 
     const isStillAskingQuestion = /\?($|\s)/m.test(reply);
 
-    // If json_lead says converteu=true, show whatsapp
     if (leadData?.foi_para_whatsapp === true) {
       showWhatsApp = true;
     }
@@ -276,12 +275,10 @@ serve(async (req) => {
       leadName = leadData.nome as string;
     }
 
-    // Never show WhatsApp while the agent is still asking a qualification question
     if (isStillAskingQuestion) {
       showWhatsApp = false;
     }
 
-    // Build WhatsApp message from lead data
     let waMsg: string | null = null;
     if (showWhatsApp && leadData) {
       const nome = leadData.nome || leadName || "lead";
@@ -290,21 +287,68 @@ serve(async (req) => {
       waMsg = `Oi! Vim pelo link da bio 👋 Meu nome é ${nome}${segmento}.${servico}`;
     }
 
+    // Save conversation and lead data
+    const supabase = getSupabaseClient();
+
+    // Build the full message list including the new user message and agent reply
+    const userMsg = messages[messages.length - 1];
+    const fullMessages = [
+      ...messages,
+      { role: "assistant", content: reply },
+    ];
+
+    let currentConversationId = conversationId;
+
+    if (currentConversationId) {
+      // Update existing conversation
+      await supabase
+        .from("conversations")
+        .update({
+          messages: fullMessages,
+          updated_at: new Date().toISOString(),
+          status: leadData ? (leadData.converteu ? "converted" : "closed") : "active",
+        })
+        .eq("id", currentConversationId);
+    } else {
+      // Create new conversation
+      const { data: convData, error: convError } = await supabase
+        .from("conversations")
+        .insert({
+          messages: fullMessages,
+          status: "active",
+        })
+        .select("id")
+        .single();
+
+      if (!convError && convData) {
+        currentConversationId = convData.id;
+      }
+      console.log("New conversation created:", currentConversationId);
+    }
+
     // Save lead to database when json_lead is present
     if (leadData) {
       try {
-        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-        await supabase.from("leads").insert({
+        const { data: leadRow } = await supabase.from("leads").insert({
           name: leadData.nome as string || leadName,
           segment: leadData.segmento as string || null,
           has_site: null,
           service_interest: leadData.servico_interesse as string || null,
           objective: leadData.resumo as string || null,
           wa_msg: waMsg,
-        });
+        }).select("id").single();
+
+        // Link lead to conversation
+        if (leadRow && currentConversationId) {
+          await supabase
+            .from("conversations")
+            .update({
+              lead_id: leadRow.id,
+              status: leadData.converteu ? "converted" : "closed",
+            })
+            .eq("id", currentConversationId);
+        }
+
         console.log("Lead saved:", leadData.nome || leadName);
       } catch (dbErr) {
         console.error("Failed to save lead:", dbErr);
@@ -312,7 +356,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ reply, leadName, showWhatsApp, waMsg }),
+      JSON.stringify({ reply, leadName, showWhatsApp, waMsg, conversationId: currentConversationId }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {

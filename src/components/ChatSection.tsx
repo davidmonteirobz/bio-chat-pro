@@ -90,7 +90,7 @@ const ChatSection = () => {
       ]);
       setShowWhatsApp(true);
     }
-  }, [leadName]);
+  }, [leadName, conversationId]);
 
   const handleSend = async (text: string) => {
     if (!text.trim()) return;

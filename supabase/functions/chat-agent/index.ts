@@ -341,30 +341,39 @@ serve(async (req) => {
       console.log("New conversation created:", currentConversationId);
     }
 
-    // Save lead to database when json_lead is present
-    if (leadData) {
+    // Save lead to database when json_lead is present (avoid duplicates)
+    if (leadData && currentConversationId) {
       try {
-        const { data: leadRow } = await supabase.from("leads").insert({
-          name: leadData.nome as string || leadName,
-          segment: leadData.segmento as string || null,
-          has_site: null,
-          service_interest: leadData.servico_interesse as string || null,
-          objective: leadData.resumo as string || null,
-          wa_msg: waMsg,
-        }).select("id").single();
+        // Check if conversation already has a linked lead
+        const { data: conv } = await supabase
+          .from("conversations")
+          .select("lead_id")
+          .eq("id", currentConversationId)
+          .single();
 
-        // Link lead to conversation
-        if (leadRow && currentConversationId) {
-          await supabase
-            .from("conversations")
-            .update({
-              lead_id: leadRow.id,
-              status: leadData.converteu ? "converted" : "closed",
-            })
-            .eq("id", currentConversationId);
+        if (!conv?.lead_id) {
+          const { data: leadRow } = await supabase.from("leads").insert({
+            name: leadData.nome as string || leadName,
+            segment: leadData.segmento as string || null,
+            has_site: null,
+            service_interest: leadData.servico_interesse as string || null,
+            objective: leadData.resumo as string || null,
+            wa_msg: waMsg,
+          }).select("id").single();
+
+          if (leadRow) {
+            await supabase
+              .from("conversations")
+              .update({
+                lead_id: leadRow.id,
+                status: leadData.converteu ? "converted" : "closed",
+              })
+              .eq("id", currentConversationId);
+          }
+          console.log("Lead saved:", leadData.nome || leadName);
+        } else {
+          console.log("Lead already linked to conversation, skipping duplicate insert");
         }
-
-        console.log("Lead saved:", leadData.nome || leadName);
       } catch (dbErr) {
         console.error("Failed to save lead:", dbErr);
       }

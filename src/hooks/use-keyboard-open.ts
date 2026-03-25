@@ -1,29 +1,24 @@
 import { useState, useEffect } from "react";
 
+const isMobileDevice = () =>
+  typeof navigator !== "undefined" && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 export function useKeyboardOpen(threshold = 0.75) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    if (!isMobileDevice()) return;
+
     const vv = window.visualViewport;
 
     if (vv) {
+      const initialHeight = vv.height;
       const handleResize = () => {
-        const ratio = vv.height / window.screen.height;
-        setIsOpen(ratio < threshold);
+        setIsOpen(vv.height < initialHeight * threshold);
       };
       vv.addEventListener("resize", handleResize);
-      handleResize();
       return () => vv.removeEventListener("resize", handleResize);
     }
-
-    // Fallback: compare innerHeight to screen height
-    const handleResize = () => {
-      const ratio = window.innerHeight / window.screen.height;
-      setIsOpen(ratio < threshold);
-    };
-    window.addEventListener("resize", handleResize);
-    handleResize();
-    return () => window.removeEventListener("resize", handleResize);
   }, [threshold]);
 
   return isOpen;

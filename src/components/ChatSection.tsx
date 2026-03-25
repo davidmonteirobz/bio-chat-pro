@@ -70,6 +70,7 @@ const ChatSection = () => {
       setIsTyping(false);
 
       if (data.leadName) setLeadName(data.leadName);
+      if (data.conversationId) setConversationId(data.conversationId);
 
       const agentMsg: Message = { role: "agent", content: data.reply };
       setMessages((prev) => [...prev, agentMsg]);

@@ -117,7 +117,7 @@ const ChatSection = () => {
 
       {/* Chat messages - scrollable area */}
       <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
-        <div className="flex flex-col gap-3 pb-2">
+        <div className="flex flex-col gap-3 pb-2 min-h-full justify-end">
           {messages.map((msg, i) => (
             <ChatBubble key={i} role={msg.role} content={msg.content} />
           ))}

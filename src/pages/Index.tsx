@@ -1,5 +1,6 @@
 import BioHeader from "@/components/BioHeader";
 import ChatSection from "@/components/ChatSection";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const Index = () => {
   return (
@@ -10,6 +11,9 @@ const Index = () => {
         </div>
         <div className="flex-1 min-h-0">
           <ChatSection />
+        </div>
+        <div className="flex-shrink-0 px-4 pb-3">
+          <WhatsAppButton />
         </div>
       </div>
     </div>

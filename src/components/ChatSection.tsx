@@ -17,7 +17,7 @@ const WHATSAPP_NUMBER = "5583999804072";
 
 // System prompt is now handled by the edge function
 
-const ChatSection = () => {
+const ChatSection = ({ keyboardOpen = false }: { keyboardOpen?: boolean }) => {
   const [messages, setMessages] = useState<Message[]>([
     { role: "agent", content: INITIAL_MESSAGE },
   ]);

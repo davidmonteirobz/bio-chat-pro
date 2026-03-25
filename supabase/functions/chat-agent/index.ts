@@ -289,32 +289,47 @@ serve(async (req) => {
 
     // Save conversation and lead data
     const supabase = getSupabaseClient();
+    const now = new Date().toISOString();
 
-    // Build the full message list including the new user message and agent reply
+    // Build timestamped new messages (user + assistant)
     const userMsg = messages[messages.length - 1];
-    const fullMessages = [
-      ...messages,
-      { role: "assistant", content: reply },
+    const newMessages = [
+      { role: userMsg.role, content: userMsg.content, timestamp: now },
+      { role: "assistant", content: reply, timestamp: now },
     ];
 
     let currentConversationId = conversationId;
 
     if (currentConversationId) {
-      // Update existing conversation
+      // Fetch existing messages and append
+      const { data: existing } = await supabase
+        .from("conversations")
+        .select("messages")
+        .eq("id", currentConversationId)
+        .single();
+
+      const existingMessages = (existing?.messages as unknown[]) || [];
+      const updatedMessages = [...existingMessages, ...newMessages];
+
       await supabase
         .from("conversations")
         .update({
-          messages: fullMessages,
-          updated_at: new Date().toISOString(),
+          messages: updatedMessages,
+          updated_at: now,
           status: leadData ? (leadData.converteu ? "converted" : "closed") : "active",
         })
         .eq("id", currentConversationId);
     } else {
-      // Create new conversation
+      // Create new conversation with initial greeting + first exchange
+      const initialMessages = [
+        { role: "assistant", content: messages[0]?.content || "", timestamp: now },
+        ...newMessages,
+      ];
+
       const { data: convData, error: convError } = await supabase
         .from("conversations")
         .insert({
-          messages: fullMessages,
+          messages: initialMessages,
           status: "active",
         })
         .select("id")

@@ -102,18 +102,20 @@ const ChatSection = ({ keyboardOpen = false }: { keyboardOpen?: boolean }) => {
 
   return (
     <section className="flex flex-col h-full px-4 pb-3">
-      {/* Label */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="flex items-center gap-2 mb-3 flex-shrink-0"
-      >
-        <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-        <span className="text-xs font-display font-semibold uppercase tracking-widest text-muted-foreground">
-          fala comigo agora
-        </span>
-      </motion.div>
+      {/* Label - hidden when keyboard is open on mobile */}
+      {!keyboardOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="flex items-center gap-2 mb-3 flex-shrink-0"
+        >
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+          <span className="text-xs font-display font-semibold uppercase tracking-widest text-muted-foreground">
+            fala comigo agora
+          </span>
+        </motion.div>
+      )}
 
       {/* Chat messages - scrollable area */}
       <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">

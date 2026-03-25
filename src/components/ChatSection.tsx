@@ -27,6 +27,7 @@ const ChatSection = () => {
   const [whatsAppMsg, setWhatsAppMsg] = useState("");
   const [showWhatsApp, setShowWhatsApp] = useState(false);
   const [leadName, setLeadName] = useState("");
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -57,7 +58,7 @@ const ChatSection = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: aiMessages }),
+        body: JSON.stringify({ messages: aiMessages, conversationId }),
       });
 
       if (!resp.ok) {
@@ -69,6 +70,7 @@ const ChatSection = () => {
       setIsTyping(false);
 
       if (data.leadName) setLeadName(data.leadName);
+      if (data.conversationId) setConversationId(data.conversationId);
 
       const agentMsg: Message = { role: "agent", content: data.reply };
       setMessages((prev) => [...prev, agentMsg]);
@@ -88,7 +90,7 @@ const ChatSection = () => {
       ]);
       setShowWhatsApp(true);
     }
-  }, [leadName]);
+  }, [leadName, conversationId]);
 
   const handleSend = async (text: string) => {
     if (!text.trim()) return;

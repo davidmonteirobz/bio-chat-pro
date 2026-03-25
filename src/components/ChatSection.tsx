@@ -101,13 +101,13 @@ const ChatSection = () => {
 
 
   return (
-    <section className="flex flex-col px-4 pb-6">
+    <section className="flex flex-col h-full px-4 pb-3">
       {/* Label */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="flex items-center gap-2 mb-4"
+        className="flex items-center gap-2 mb-3 flex-shrink-0"
       >
         <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
         <span className="text-xs font-display font-semibold uppercase tracking-widest text-muted-foreground">
@@ -115,35 +115,37 @@ const ChatSection = () => {
         </span>
       </motion.div>
 
-      {/* Chat messages */}
-      <div className="flex flex-col gap-3">
-        {messages.map((msg, i) => (
-          <ChatBubble key={i} role={msg.role} content={msg.content} />
-        ))}
-        {isTyping && <TypingIndicator />}
+      {/* Chat messages - scrollable area */}
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+        <div className="flex flex-col gap-3 pb-2">
+          {messages.map((msg, i) => (
+            <ChatBubble key={i} role={msg.role} content={msg.content} />
+          ))}
+          {isTyping && <TypingIndicator />}
 
-        {showWhatsApp && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex justify-start"
-          >
-            <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsAppMsg || "Oi! Vim pelo site e quero saber mais!")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#25D366] text-white font-display font-semibold text-sm hover:bg-[#25D366]/90 transition-all"
+          {showWhatsApp && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex justify-start"
             >
-              📲 Continuar no WhatsApp
-            </a>
-          </motion.div>
-        )}
+              <a
+                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsAppMsg || "Oi! Vim pelo site e quero saber mais!")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#25D366] text-white font-display font-semibold text-sm hover:bg-[#25D366]/90 transition-all"
+              >
+                📲 Continuar no WhatsApp
+              </a>
+            </motion.div>
+          )}
 
-        <div ref={chatEndRef} />
+          <div ref={chatEndRef} />
+        </div>
       </div>
 
-      {/* Input */}
-      <div className="mt-3 w-full">
+      {/* Input - pinned at bottom */}
+      <div className="flex-shrink-0 pt-2">
         <div className="flex items-center gap-2 bg-white border border-border rounded-2xl px-4 py-2">
           <input
             type="text"

@@ -1,73 +1,38 @@
-# Welcome to your Lovable project
+# Bio Chat Pro
 
-## Project info
+Agente de IA para pré-qualificação de leads via link na bio.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## O problema
 
-## How can I edit this code?
+Solopreneurs e profissionais autônomos perdem tempo com 
+atendimentos que não convertem — clientes pedem orçamento 
+e somem sem dar retorno.
 
-There are several ways of editing your application.
+## A solução
 
-**Use Lovable**
+Agente conversacional integrado ao link na bio que pré-qualifica 
+leads, quebra objeções e só transfere para o WhatsApp quando 
+o cliente está pronto para fechar.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Como funciona
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Cliente acessa o link na bio e inicia conversa com o agente
+2. Agente faz perguntas estratégicas e quebra objeções
+3. Lead qualificado é transferido para o WhatsApp com os dados coletados
+4. Lead não qualificado tem os dados e motivo registrados no banco
 
-**Use your preferred IDE**
+## Funcionalidades
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Agente conversacional com LLM integrada
+- Pré-qualificação automática de leads
+- Quebra de objeções em tempo real
+- Transferência para WhatsApp com dados do cliente
+- Registro de todos os leads no Supabase
+- Histórico de leads perdidos com motivo da não conversão
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Stack
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
+- Lovable
+- Supabase (banco de dados)
+- LLM (modelo de linguagem)
 - TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
